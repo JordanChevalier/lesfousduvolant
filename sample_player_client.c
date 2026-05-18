@@ -43,12 +43,13 @@ typedef int sock_t;
  * send_line – send <msg> followed by a newline.
  * Returns 0 on success, -1 on error.
  */
-static int send_line(sock_t fd, const char* msg)
+static int send_line(sock_t fd, const char *msg)
 {
     size_t len = strlen(msg);
     /* Build "msg\n" in a local buffer to avoid two send() calls. */
-    char* buf = (char*)malloc(len + 2);
-    if (!buf) {
+    char *buf = (char *)malloc(len + 2);
+    if (!buf)
+    {
         fprintf(stderr, "send_line: out of memory\n");
         return -1;
     }
@@ -57,9 +58,11 @@ static int send_line(sock_t fd, const char* msg)
     buf[len + 1] = '\0';
 
     size_t sent = 0;
-    while (sent < len + 1) {
+    while (sent < len + 1)
+    {
         int n = (int)send(fd, buf + sent, (int)(len + 1 - sent), 0);
-        if (n <= 0) {
+        if (n <= 0)
+        {
             fprintf(stderr, "send_line: connection lost while sending '%s'\n", msg);
             free(buf);
             return -1;
@@ -76,20 +79,24 @@ static int send_line(sock_t fd, const char* msg)
  * Returns the number of bytes stored in buf (excluding the null terminator),
  * or -1 on error / disconnection.
  */
-static int read_line(sock_t fd, char* buf, size_t size)
+static int read_line(sock_t fd, char *buf, size_t size)
 {
     size_t pos = 0;
-    while (pos < size - 1) {
+    while (pos < size - 1)
+    {
         char c;
         int n = (int)recv(fd, &c, 1, 0);
-        if (n <= 0) {
+        if (n <= 0)
+        {
             fprintf(stderr, "read_line: connection closed by server\n");
             return -1;
         }
-        if (c == '\n') {
+        if (c == '\n')
+        {
             break;
         }
-        if (c == '\r') {
+        if (c == '\r')
+        {
             continue; /* skip CR in CRLF line endings */
         }
         buf[pos++] = c;
@@ -102,15 +109,16 @@ static int read_line(sock_t fd, char* buf, size_t size)
  * Main
  * -------------------------------------------------------------------------- */
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
-    const char* host = (argc > 1) ? argv[1] : "127.0.0.1";
-    const char* port = (argc > 2) ? argv[2] : "16210";
-    const char* name = (argc > 3) ? argv[3] : "turner";
+    const char *host = (argc > 1) ? argv[1] : "127.0.0.1";
+    const char *port = (argc > 2) ? argv[2] : "16210";
+    const char *name = (argc > 3) ? argv[3] : "turner";
 
 #ifdef _WIN32
     WSADATA wsa;
-    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
+    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
+    {
         fprintf(stderr, "WSAStartup failed\n");
         return 1;
     }
@@ -121,11 +129,12 @@ int main(int argc, char* argv[])
     /* ------------------------------------------------------------------ */
     struct addrinfo hints, *res, *rp;
     memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_UNSPEC; /* IPv4 or IPv6 */
+    hints.ai_family = AF_UNSPEC;     /* IPv4 or IPv6 */
     hints.ai_socktype = SOCK_STREAM; /* TCP */
 
     int rc = getaddrinfo(host, port, &hints, &res);
-    if (rc != 0) {
+    if (rc != 0)
+    {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rc));
 #ifdef _WIN32
         WSACleanup();
@@ -134,12 +143,15 @@ int main(int argc, char* argv[])
     }
 
     sock_t fd = INVALID_SOCK;
-    for (rp = res; rp != NULL; rp = rp->ai_next) {
+    for (rp = res; rp != NULL; rp = rp->ai_next)
+    {
         fd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
-        if (fd == INVALID_SOCK) {
+        if (fd == INVALID_SOCK)
+        {
             continue;
         }
-        if (connect(fd, rp->ai_addr, (int)rp->ai_addrlen) == 0) {
+        if (connect(fd, rp->ai_addr, (int)rp->ai_addrlen) == 0)
+        {
             break; /* connected */
         }
         sock_close(fd);
@@ -147,7 +159,8 @@ int main(int argc, char* argv[])
     }
     freeaddrinfo(res);
 
-    if (fd == INVALID_SOCK) {
+    if (fd == INVALID_SOCK)
+    {
         fprintf(stderr, "Could not connect to %s:%s\n", host, port);
 #ifdef _WIN32
         WSACleanup();
@@ -173,7 +186,8 @@ int main(int argc, char* argv[])
     /* Expect "OK" */
     if (read_line(fd, line, sizeof(line)) < 0)
         goto error;
-    if (strcmp(line, "OK") != 0) {
+    if (strcmp(line, "OK") != 0)
+    {
         fprintf(stderr, "Server rejected connection: '%s'\n", line);
         goto error;
     }
@@ -182,7 +196,8 @@ int main(int argc, char* argv[])
     /* Expect "START" */
     if (read_line(fd, line, sizeof(line)) < 0)
         goto error;
-    if (strcmp(line, "START") != 0) {
+    if (strcmp(line, "START") != 0)
+    {
         fprintf(stderr, "Expected START, got: '%s'\n", line);
         goto error;
     }
@@ -191,13 +206,15 @@ int main(int argc, char* argv[])
     /* ------------------------------------------------------------------ */
     /* Game loop: turn right indefinitely                                  */
     /* ------------------------------------------------------------------ */
-    for (;;) {
-        if (send_line(fd, "TURN_RIGHT") < 0)
+    for (;;)
+    {
+        if (send_line(fd, calcul_prochaine_action()) < 0)
             goto done;
         if (read_line(fd, line, sizeof(line)) < 0)
             goto done;
         /* KO means we are blocked; keep trying — the server will handle it */
-        if (strcmp(line, "OK") != 0 && strcmp(line, "KO") != 0) {
+        if (strcmp(line, "OK") != 0 && strcmp(line, "KO") != 0)
+        {
             /* Unexpected response; the game may have ended */
             printf("Server: '%s' — stopping.\n", line);
             break;
