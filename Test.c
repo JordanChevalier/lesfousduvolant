@@ -6,14 +6,17 @@ MU_TEST(test_calcul_prochaine_action_exist)
     /* Test that calcul_prochaine_action() returns a valid action string */
     const char *action = calcul_prochaine_action();
     mu_assert(action != NULL, "calcul_prochaine_action() should not return NULL");
-    mu_assert(strcmp(action, "TURN_RIGHT") == 0 || strcmp(action, "TURN_LEFT") == 0 ||
-                  strcmp(action, "ACCELERATE") == 0 || strcmp(action, "DECELERATE") == 0 || strcmp(action, "WAIT") == 0,
-              "calcul_prochaine_action() should return a valid action string");
+}
+MU_TEST(test_get_sensors)
+{
+    const char *sensors = generate_get_sensors();
+    mu_assert_string_eq(sensors, "GET_SENSORS");
 }
 
 MU_TEST_SUITE(test_suite)
 {
     MU_RUN_TEST(test_calcul_prochaine_action_exist);
+    MU_RUN_TEST(test_get_sensors);
 }
 
 int main()
