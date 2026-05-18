@@ -31,10 +31,10 @@ typedef int sock_t;
 #define sock_close close
 #endif
 
+#include "strategie.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 /* --------------------------------------------------------------------------
  * Low-level helpers
  * -------------------------------------------------------------------------- */

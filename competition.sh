@@ -4,7 +4,7 @@ echo "La compétition se passe sur 127.0.0.1:$PORT"
 
 find . -name "*.log" -exec rm \{} \;
 
-uvx --from amazinggame server -p $PORT --timeout 5 &
+uvx --from amazinggame server -p $PORT --timeout 1 &
 
 uvx --from amazinggame viewer -p $PORT &
 # https://www.speedscope.app/
@@ -12,7 +12,8 @@ uvx --from amazinggame viewer -p $PORT &
 #uv run python -m amazinggame.viewer -p $PORT --small-window &
 sleep 2
 
-gcc -Wall -o lesfouduvolant.exe sample_player_client.c
+gcc -Wall -o lesfouduvolant.exe sample_player_client.c strategie.c #même ligne dans runtest.sh
+
 ./lesfouduvolant.exe 127.0.0.1 $PORT "LesFousDuVolant"
 
 sleep 500
