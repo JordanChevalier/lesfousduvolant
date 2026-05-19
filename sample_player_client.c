@@ -212,13 +212,7 @@ int main(int argc, char *argv[])
             goto done;
         if (read_line(fd, line, sizeof(line)) < 0)
             goto done;
-        /* KO means we are blocked; keep trying — the server will handle it */
-        if (strcmp(line, "OK") != 0 && strcmp(line, "KO") != 0)
-        {
-            /* Unexpected response; the game may have ended */
-            printf("Server: '%s' — stopping.\n", line);
-            break;
-        }
+        analyse_sensors(line);
     }
 
 done:
