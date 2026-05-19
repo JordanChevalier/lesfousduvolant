@@ -1,6 +1,6 @@
 PORT=$(python -c "import random; print(random.randint(50000, 60000))")
 echo "La compétition se passe sur 127.0.0.1:$PORT"
-#uvx --from amazinggame killall
+uvx --from amazinggame killall
 
 find . -name "*.log" -exec rm \{} \;
 
@@ -17,4 +17,4 @@ gcc -Wall -o lesfouduvolant.exe sample_player_client.c strategie.c #même ligne 
 ./lesfouduvolant.exe 127.0.0.1 $PORT "LesFousDuVolant"
 
 sleep 500
-#uvx --from amazinggame killall
+uvx --from amazinggame killall
