@@ -1,4 +1,6 @@
-# 📄 Rapport – Projet Labyrinthe C (Client + Stratégie IA)
+#  Rapport – Projet amazinggame
+Jordan Chevalier
+Thomas Albouy
 
 ---
 
